@@ -1,10 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-"""
-    setup.py
-    ~~~~~~~~~~
-
-"""
 from setuptools import setup
 import unittest
 
@@ -16,7 +11,7 @@ def alipay_test_suite():
 
 
 setup(
-    name="python-alipay-sdk",
+    name="alipay-py",
     version="0.6.3",
     author="fzlee",
     author_email="fzleee@gmail.com",

@@ -1,35 +1,20 @@
 #!/usr/bin/env python
 # coding: utf-8
-"""
-    helper.py
-    ~~~~~~~~~~
-
-"""
 import os
 
 
 current_dir = os.path.dirname(os.path.realpath(__file__))
 
 
-def get_ali_certs():
-    path = os.path.join(current_dir, "certs/ali")
+def get_certs():
     return (
-        os.path.join(path, "ali_private_key.pem"),
-        os.path.join(path, "ali_public_key.pem")
+        open(os.path.join(current_dir, "certs", "ali_private_key.pem")).read(),
+        open(os.path.join(current_dir, "certs", "ali_public_key.pem")).read()
     )
 
 
-def get_app_certs():
-    path = os.path.join(current_dir, "certs/app")
+def get_certs_path():
     return (
-        os.path.join(path, "app_private_key.pem"),
-        os.path.join(path, "app_public_key.pem")
-    )
-
-
-def get_web_certs():
-    path = os.path.join(current_dir, "certs/web")
-    return (
-        os.path.join(path, "web_private_key.pem"),
-        os.path.join(path, "web_public_key.pem")
+        os.path.join(current_dir, "certs", "ali_private_key.pem"),
+        os.path.join(current_dir, "certs", "ali_public_key.pem")
     )
