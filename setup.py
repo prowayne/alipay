@@ -1,10 +1,5 @@
 #!/usr/bin/env python
 # coding: utf-8
-"""
-    setup.py
-    ~~~~~~~~~~
-
-"""
 from setuptools import setup
 import unittest
 
@@ -16,8 +11,8 @@ def alipay_test_suite():
 
 
 setup(
-    name="python-alipay-sdk",
-    version="1.1.0",
+    name="alipay-py",
+    version="0.6.3",
     author="fzlee",
     author_email="fzleee@gmail.com",
     description="Python SDK for AliPay, RSA is the only sign method we support",
