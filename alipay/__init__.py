@@ -147,8 +147,14 @@ class BaseAliPayClient(object):
         """
         return data if verification succeeded, else raise exception
         """
+        if self.__debug:
+            print('return: ', raw_string)
 
         response = json.loads(raw_string)
+        if 'error_response' in response:
+            raise AliPayException(code=response['error_response']['code'],
+                                  msg=response['error_response']['msg'])
+
         result = response[response_type]
         sign = response["sign"]
 
@@ -156,8 +162,6 @@ class BaseAliPayClient(object):
         raw_string = self.get_string_to_be_signed(
             raw_string, response_type
         )
-        if self.__debug:
-            print raw_string
 
         if not self._verify(raw_string, sign, self.__alipay_public_key):
             raise AliPayValidationError
@@ -215,6 +219,8 @@ class BaseAliPayClient(object):
             data.update(kwargs)
 
         url = self.__gateway + "?" + self._sign_data(data, self.__private_key)
+        if self.__debug:
+            print('get url: ', url)
         raw_string = urlopen(url, timeout=timeout).read().decode("utf-8")
         response_type = method.replace('.', '_') + '_response'
         return self.__verify_and_return_data(raw_string, response_type)
@@ -225,9 +231,3 @@ class AliPayClient(BaseAliPayClient):
         return self._request('alipay.system.oauth.token',
                              grant_type=grant_type,
                              **kwargs)
-
-
-
-
-
-
