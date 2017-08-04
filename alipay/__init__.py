@@ -40,6 +40,7 @@ class BaseAliPayClient(object):
         self.__notify_url = notify_url
         self.__private_key = private_key
         self.__alipay_public_key = alipay_public_key
+        self.__debug = debug
 
         self.__check_internal_configuration()
 
@@ -155,6 +156,8 @@ class BaseAliPayClient(object):
         raw_string = self.get_string_to_be_signed(
             raw_string, response_type
         )
+        if self.__debug:
+            print raw_string
 
         if not self._verify(raw_string, sign, self.__alipay_public_key):
             raise AliPayValidationError
