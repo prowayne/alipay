@@ -29,30 +29,39 @@ class BaseAliPayClient(object):
     def sign_type(self):
         return self.__sign_type
 
+    @property
+    def gateway(self):
+        if self.__custom_gateway:
+            return self.__custom_gateway
+
+        if self.__debug is True:
+            return "https://openapi.alipaydev.com/gateway.do"
+        else:
+            return "https://openapi.alipay.com/gateway.do"
+
     def __init__(self,
                  appid=None,
                  notify_url=None,
                  private_key=None,
                  alipay_public_key=None,
                  sign_type="RSA2",
-                 debug=False):
+                 custom_gateway=None,
+                 debug=False,
+                 verify_return_data=True):
         self.__appid = appid
         self.__notify_url = notify_url
         self.__private_key = private_key
         self.__alipay_public_key = alipay_public_key
+        self.__sign_type = sign_type
+        self.__custom_gateway = custom_gateway
         self.__debug = debug
+        self.__verify = verify_return_data
 
         self.__check_internal_configuration()
 
         if sign_type not in ("RSA", "RSA2"):
             raise AliPayException(None,
                                   "Unsupported sign type {}".format(sign_type))
-        self.__sign_type = sign_type
-
-        if debug is True:
-            self.__gateway = "https://openapi.alipaydev.com/gateway.do"
-        else:
-            self.__gateway = "https://openapi.alipay.com/gateway.do"
 
     def __ordered_data(self, data):
         complex_keys = []
@@ -163,7 +172,8 @@ class BaseAliPayClient(object):
             raw_string, response_type
         )
 
-        if not self._verify(raw_string, sign, self.__alipay_public_key):
+        if self.__verify and \
+                not self._verify(raw_string, sign, self.__alipay_public_key):
             raise AliPayValidationError
         return result
 
@@ -218,7 +228,7 @@ class BaseAliPayClient(object):
         if kwargs:
             data.update(kwargs)
 
-        url = self.__gateway + "?" + self._sign_data(data, self.__private_key)
+        url = self.gateway + "?" + self._sign_data(data, self.__private_key)
         if self.__debug:
             print('get url: ', url)
         raw_string = urlopen(url, timeout=timeout).read().decode("utf-8")
@@ -231,3 +241,6 @@ class AliPayClient(BaseAliPayClient):
         return self._request('alipay.system.oauth.token',
                              grant_type=grant_type,
                              **kwargs)
+
+    def ele_order_sync(self, **kwargs):
+        return self._request('koubei.catering.ele.order.sync', **kwargs)
