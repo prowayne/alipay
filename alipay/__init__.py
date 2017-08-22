@@ -165,7 +165,10 @@ class BaseAliPayClient(object):
                                   msg=response['error_response']['msg'])
 
         result = response[response_type]
-        sign = response["sign"]
+        try:
+            sign = response["sign"]
+        except KeyError:
+            raise AliPayException(result['code'], result['msg'])
 
         # locate string to be signed
         raw_string = self.get_string_to_be_signed(
