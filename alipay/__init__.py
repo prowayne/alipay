@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 import json
+import logging
 
 from datetime import datetime
 from Crypto.Signature import PKCS1_v1_5
@@ -17,6 +18,7 @@ from .exceptions import (
     AliPayException,
     AliPayValidationError,
 )
+logger = logging.getLogger('openapi.alipay')
 
 
 class BaseAliPayClient(object):
@@ -33,11 +35,7 @@ class BaseAliPayClient(object):
     def gateway(self):
         if self.__custom_gateway:
             return self.__custom_gateway
-
-        if self.__debug is True:
-            return "https://openapi.alipaydev.com/gateway.do"
-        else:
-            return "https://openapi.alipay.com/gateway.do"
+        return "https://openapi.alipay.com/gateway.do"
 
     def __init__(self,
                  appid=None,
@@ -46,7 +44,6 @@ class BaseAliPayClient(object):
                  alipay_public_key=None,
                  sign_type="RSA2",
                  custom_gateway=None,
-                 debug=False,
                  verify_return_data=True):
         self.__appid = appid
         self.__notify_url = notify_url
@@ -54,7 +51,6 @@ class BaseAliPayClient(object):
         self.__alipay_public_key = alipay_public_key
         self.__sign_type = sign_type
         self.__custom_gateway = custom_gateway
-        self.__debug = debug
         self.__verify = verify_return_data
 
         self.__check_internal_configuration()
@@ -156,9 +152,7 @@ class BaseAliPayClient(object):
         """
         return data if verification succeeded, else raise exception
         """
-        if self.__debug:
-            print('return: ', raw_string)
-
+        logger.info('alipay return, %r', raw_string)
         response = json.loads(raw_string)
         if 'error_response' in response:
             raise AliPayException(code=response['error_response']['code'],
@@ -232,8 +226,7 @@ class BaseAliPayClient(object):
             data.update(kwargs)
 
         url = self.gateway + "?" + self._sign_data(data, self.__private_key)
-        if self.__debug:
-            print('get url: ', url)
+        logger.info('alipay request url: %r', url)
         raw_string = urlopen(url, timeout=timeout).read().decode("utf-8")
         response_type = method.replace('.', '_') + '_response'
         return self.__verify_and_return_data(raw_string, response_type)
