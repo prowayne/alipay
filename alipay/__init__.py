@@ -220,7 +220,7 @@ class BaseAliPayClient(object):
 
     def _request(self, method, timeout=10, **kwargs):
         data = {
-            "app_id": self.__appid,
+            "app_id": str(self.__appid),
             "format": "JSON",
             "charset": "utf-8",
             "sign_type": self.__sign_type,
