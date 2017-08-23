@@ -233,6 +233,10 @@ class BaseAliPayClient(object):
 
 
 class AliPayClient(BaseAliPayClient):
+    def request(self, method, **kwargs):
+        timeout = kwargs.pop('timeout', 10)
+        return self._request(method, timeout=timeout, **kwargs)
+
     def get_oauth_token(self, grant_type, **kwargs):
         return self._request('alipay.system.oauth.token',
                              grant_type=grant_type,
