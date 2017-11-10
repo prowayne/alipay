@@ -18,7 +18,8 @@ from .exceptions import (
     AliPayException,
     AliPayValidationError,
 )
-logger = logging.getLogger('openapi.alipay')
+
+logger = logging.getLogger(__name__)
 
 
 class BaseAliPayClient(object):
@@ -244,3 +245,77 @@ class AliPayClient(BaseAliPayClient):
 
     def ele_order_sync(self, **kwargs):
         return self._request('koubei.catering.ele.order.sync', **kwargs)
+
+    def trade_refund(self, refund_amount, out_trade_no=None,
+                     trade_no=None, **kwargs):
+        biz_content = {
+            "refund_amount": refund_amount
+        }
+        biz_content.update(**kwargs)
+        if out_trade_no:
+            biz_content["out_trade_no"] = out_trade_no
+        if trade_no:
+            biz_content["trade_no"] = trade_no
+
+        return self._request("alipay.trade.refund", biz_content=biz_content)
+
+    def trade_cancel(self, out_trade_no=None, trade_no=None):
+        """
+        response = {
+        "alipay_trade_cancel_response": {
+            "msg": "Success",
+            "out_trade_no": "out_trade_no15",
+            "code": "10000",
+            "retry_flag": "N"
+          }
+        }
+        """
+
+        assert (out_trade_no is not None) or (trade_no is not None), \
+            "Both trade_no and out_trade_no are None"
+
+        biz_content = {}
+        if out_trade_no:
+            biz_content["out_trade_no"] = out_trade_no
+        if trade_no:
+            biz_content["trade_no"] = trade_no
+
+        return self._request("alipay.trade.cancel", biz_content=biz_content)
+
+    def trade_precreate(self, subject, out_trade_no, total_amount, **kwargs):
+        """
+        success response  = {
+          "alipay_trade_precreate_response": {
+            "msg": "Success",
+            "out_trade_no": "out_trade_no17",
+            "code": "10000",
+            "qr_code": "https://qr.alipay.com/bax03431ljhokirwl38f00a7"
+          },
+          "sign": ""
+        }
+        failed response = {
+          "alipay_trade_precreate_response": {
+            "msg": "Business Failed",
+            "sub_code": "ACQ.TOTAL_FEE_EXCEED",
+            "code": "40004",
+            "sub_msg": "订单金额超过限额"
+          },
+          "sign": ""
+        }
+        """
+        biz_content = {
+            "out_trade_no": out_trade_no,
+            "total_amount": total_amount,
+            "subject": subject
+        }
+        biz_content.update(**kwargs)
+        return self._request("alipay.trade.precreate", biz_content=biz_content)
+
+    def trade_query(self, out_trade_no=None, trade_no=None):
+        biz_content = {}
+        if out_trade_no:
+            biz_content["out_trade_no"] = out_trade_no
+        if trade_no:
+            biz_content["trade_no"] = trade_no
+
+        return self._request('alipay.trade.query', biz_content=biz_content)
