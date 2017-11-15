@@ -36,6 +36,8 @@ class BaseAliPayClient(object):
     def gateway(self):
         if self.__custom_gateway:
             return self.__custom_gateway
+        if self.__debug:
+            return "https://openapi.alipaydev.com/gateway.do"
         return "https://openapi.alipay.com/gateway.do"
 
     def __init__(self,
@@ -45,6 +47,7 @@ class BaseAliPayClient(object):
                  alipay_public_key=None,
                  sign_type="RSA2",
                  custom_gateway=None,
+                 debug=False,
                  verify_return_data=True):
         self.__appid = appid
         self.__notify_url = notify_url
@@ -52,6 +55,7 @@ class BaseAliPayClient(object):
         self.__alipay_public_key = alipay_public_key
         self.__sign_type = sign_type
         self.__custom_gateway = custom_gateway
+        self.__debug = debug,
         self.__verify = verify_return_data
 
         self.__check_internal_configuration()
